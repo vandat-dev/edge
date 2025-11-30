@@ -8,6 +8,8 @@ from fastapi.params import Depends
 from starlette.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocket
 
+from app.core.kafka.producer import kafka_producer
+from app.core.kafka.consumer import kafka_consumer
 from app.core.setting import settings
 from app.initialize.database import lifespan as database_lifespan
 from app.initialize.websocket import socket_manage
@@ -19,16 +21,25 @@ from app.modules.user.dependencies import get_token_service
 
 @asynccontextmanager
 async def app_lifespan(app: FastAPI):
-    """Composite lifespan managing both database and gRPC server."""
-    # Start database
+    # Start DB
     async with database_lifespan(app):
-        # Start gRPC server
+
+        # Start GRPC
         grpc_task = asyncio.create_task(start_grpc_server())
-        logging.info("Application startup complete: Database + gRPC")
-        
+
+        # Start global Kafka Producer
+        await kafka_producer.start()
+        await kafka_consumer.start()
+
+        logging.info("Startup complete: DB + gRPC + Kafka Producer")
+
         yield
-        
-        # Cleanup happens automatically via context managers
+
+        # Shutdown Kafka
+        await kafka_producer.stop()
+        await kafka_consumer.stop()
+
+        grpc_task.cancel()
 
 
 class Application:

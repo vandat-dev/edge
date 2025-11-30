@@ -32,3 +32,8 @@ async def refresh_token(refresh_data: RefreshTokenSchema,
                         auth_service: AuthService = Depends(get_auth_service)):
     tokens = await auth_service.refresh_token(refresh_data.refresh_token)
     return handle_response(tokens)
+
+
+@auth_router.get("/producer")
+async def producer(auth_service: AuthService = Depends(get_auth_service)):
+    return await auth_service.send_user_created_event()

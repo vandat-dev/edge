@@ -2,6 +2,7 @@ import logging
 from uuid import UUID
 
 from app.core.app_status import AppStatus
+from app.core.kafka import kafka_producer
 from app.modules.user.schemas import RegisterSchema, UserUpdateSchema
 from app.utils.hasher import hash_password, verify_password
 from app.utils.response import error_exception_handler, handle_response
@@ -66,3 +67,10 @@ class AuthService:
         if not result:
             raise error_exception_handler(AppStatus.ERROR_USER_NOT_FOUND)
         return handle_response(app_status=AppStatus.SUCCESS)
+
+    async def send_user_created_event(self):
+        payload = {
+            "event": "user_created",
+            "user_id": "testtt"
+        }
+        await kafka_producer.send_message("demo", payload)
