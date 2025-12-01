@@ -13,7 +13,7 @@ class KafkaProducer:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, brokers: str = "localhost:9092"):
+    def __init__(self, brokers: str = "localhost:9096"):
         self.brokers = brokers
         self.producer: AIOKafkaProducer | None = None
         self.started = False

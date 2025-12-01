@@ -2,6 +2,8 @@
 import asyncio
 import json
 import logging
+import time
+
 from aiokafka import AIOKafkaConsumer
 
 
@@ -13,7 +15,7 @@ class KafkaConsumer:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, brokers: str = "localhost:9092", topic: str = "demo"):
+    def __init__(self, brokers: str = "localhost:9096", topic: str = "demo"):
         self.brokers = brokers
         self.topic = topic
         # self.group_id = group_id
@@ -60,16 +62,15 @@ class KafkaConsumer:
     async def _consume_loop(self):
         try:
             async for msg in self.consumer:
-                logging.info(
-                    f"[KAFKA] partition={msg.partition} offset={msg.offset} value={msg.value}"
-                )
-
+                # logging.info(
+                #     f"[KAFKA] partition={msg.partition} offset={msg.offset} value={msg.value}"
+                # )
                 # Trigger callback nếu có
-                # if self.on_message_callback:
-                #     try:
-                #         await self.on_message_callback(msg.value)
-                #     except Exception as e:
-                #         logging.error(f"Consumer callback error: {e}")
+                if self.on_message_callback:
+                    try:
+                        await self.on_message_callback(msg.value)
+                    except Exception as e:
+                        logging.error(f"Consumer callback error: {e}")
 
         except asyncio.CancelledError:
             pass

@@ -18,7 +18,7 @@ class FrameServicer(frame_pb2_grpc.FrameServiceServicer):
             self, request: frame_pb2.FrameRequest, context: grpc.aio.ServicerContext
     ) -> frame_pb2.FrameResponse:
         try:
-            # print("Received frame")
+            print("Received frame")
             asyncio.create_task(socket_manage.broadcast_binary(request.data))
             return frame_pb2.FrameResponse()
             # await socket_manage.broadcast_binary(request.data)

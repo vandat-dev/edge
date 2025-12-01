@@ -74,3 +74,7 @@ class AuthService:
             "user_id": "testtt"
         }
         await kafka_producer.send_message("demo", payload)
+
+    async def receive_messages(self, data):
+        logging.info(f"[SERVICE] Received message: {data}")
+
